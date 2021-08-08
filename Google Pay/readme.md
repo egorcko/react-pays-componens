@@ -8,17 +8,17 @@
 Google Pay не является платежным сервисом. Оплата производится с помощью банка, эквайринг которого используется на сайте. Система Google Pay формирует платежный токен, который проверяет банк, после чего создает транзакцию на списание средств с карты клиента
 
 ### Props
-#### `className`?: string
+#### `className?:` string
 CSS класс для стилизации элемента. Стили самой кнопки приходят от Google, поэтому настроить их не получится. Можно только добавить внешние отступы, либо состояние загрузки
-#### `buttonColor`?: black | white
+#### `buttonColor?:` black | white
 Цвет кнопки
-#### `buttonSizeMode`?: static | fill
+#### `buttonSizeMode?:` static | fill
 Если выбрано свойство `static` (по умолчанию), кнопка занимает столько места, сколько ей нужно, если указано свойство `fill` - заполняет весь родительский контейнер
-#### `amount`: string
+#### `amount:` string
 Сумма транзакции с двумя знаками после запятой, записанная в виде строки
-#### `onPaymentSuccess`: (data: [PaymentMethodData](https://developers.google.com/pay/api/web/reference/response-objects#PaymentData)) => void
+#### `onPaymentSuccess:` (data: [PaymentMethodData](https://developers.google.com/pay/api/web/reference/response-objects#PaymentData)) => void
 Метод, который будет вызван при успешной авторизации клиента и совершении транзации. Из полученного объекта можно извлечь сформированный платежный токен, который необходимо передать в метод оплаты эквайринга
-#### `params`:
+#### `params:`
 Объект с набором параметров, необходимых для совершения операции
 | Name | Type | Description | Required | Default |
 | ---- |:----:|:--------:|:--------:|---------|
