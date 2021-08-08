@@ -1,4 +1,4 @@
-import { Component, createRef, RefObject } from 'react';
+import { Component, createRef, RefObject } from "react";
 
 declare global {
   interface Window {
@@ -9,7 +9,7 @@ declare global {
 interface GooglePayParams {
   merchantName: string;
   gateway: string;
-  environment?: 'TEST' | 'PRODUCTION';
+  environment?: "TEST" | "PRODUCTION";
   apiVersion?: number;
   apiVersionMinor?: number;
   gatewayMerchantId?: string;
@@ -22,22 +22,22 @@ interface GooglePayParams {
 
 interface GooglePayProps {
   className?: string;
-  buttonColor?: 'black' | 'white';
-  buttonSizeMode?: 'static' | 'fill';
+  buttonColor?: "black" | "white";
+  buttonSizeMode?: "static" | "fill";
   onPaymentSuccess: (data: PaymentData) => void;
   amount: string;
   params: GooglePayParams;
 }
 
 interface BaseCardPaymentMethod {
-  type: 'CARD';
+  type: "CARD";
   parameters: {
     allowedAuthMethods: string[];
     allowedCardNetworks: string[];
   };
 }
 
-type TokenizationType = 'PAYMENT_GATEWAY';
+type TokenizationType = "PAYMENT_GATEWAY";
 
 interface PaymentMethodData {
   type: string;
@@ -48,7 +48,7 @@ interface PaymentMethodData {
   };
 }
 
-interface PaymentData extends BaseRequestParams {
+export interface PaymentData extends BaseRequestParams {
   paymentMethodData: PaymentMethodData;
 }
 
@@ -64,7 +64,7 @@ interface PaymentRequestParams extends BaseRequestParams {
     merchantId: string;
   };
   transactionInfo: {
-    totalPriceStatus: 'FINAL';
+    totalPriceStatus: "FINAL";
     totalPrice: string;
     countryCode: string;
     currencyCode: string;
@@ -94,8 +94,8 @@ interface Config {
   cardPaymentMethod: CardPaymentMethod;
 }
 
-const defaultCardNetworks = ['MASTERCARD', 'VISA'];
-const defaultCardAuthMethods = ['PAN_ONLY', 'CRYPTOGRAM_3DS'];
+const defaultCardNetworks = ["MASTERCARD", "VISA"];
+const defaultCardAuthMethods = ["PAN_ONLY", "CRYPTOGRAM_3DS"];
 
 export default class GooglePay extends Component<GooglePayProps> {
   config: Config;
@@ -109,18 +109,19 @@ export default class GooglePay extends Component<GooglePayProps> {
     this.config = {
       baseRequest: {
         apiVersion: props.params?.apiVersion ?? 2,
-        apiVersionMinor: props.params?.apiVersionMinor ?? 0
+        apiVersionMinor: props.params?.apiVersionMinor ?? 0,
       },
       cardPaymentMethod: {
         tokenizationSpecification: {
-          type: 'PAYMENT_GATEWAY',
+          type: "PAYMENT_GATEWAY",
           parameters: {
             gateway: props.params?.gateway as string,
-            gatewayMerchantId: props.params?.gatewayMerchantId ?? 'exampleGatewayMerchantId'
-          }
+            gatewayMerchantId:
+              props.params?.gatewayMerchantId ?? "exampleGatewayMerchantId",
+          },
         },
-        ...this.getBaseCardPaymentMethod()
-      }
+        ...this.getBaseCardPaymentMethod(),
+      },
     };
 
     this.createButton = this.createButton.bind(this);
@@ -128,9 +129,12 @@ export default class GooglePay extends Component<GooglePayProps> {
   }
 
   componentDidMount() {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       this.includeScript().then(() => {
-        console.info('%c Google Pay script was loaded successfully', 'color: green;');
+        console.info(
+          "%c Google Pay script was loaded successfully",
+          "color: green;"
+        );
         this.initPaymentClient();
       });
     }
@@ -138,7 +142,7 @@ export default class GooglePay extends Component<GooglePayProps> {
 
   initPaymentClient() {
     this.paymentsClient = new window.google.payments.api.PaymentsClient({
-      environment: this.props.params.environment ?? 'TEST'
+      environment: this.props.params.environment ?? "TEST",
     });
     this.paymentsClient
       .isReadyToPay(this.getReadyToPayRequest())
@@ -147,20 +151,22 @@ export default class GooglePay extends Component<GooglePayProps> {
   }
 
   includeScript() {
-    return new Promise<void>(resolve => {
-      let s = document.createElement('script');
-      s.src = 'https://pay.google.com/gp/p/js/pay.js';
+    const script = document.querySelector("#google-pay-script");
+    if (script) script.remove();
+    return new Promise<void>((resolve) => {
+      let s = document.createElement("script");
+      s.id = "google-pay-script";
+      s.src = "https://pay.google.com/gp/p/js/pay.js";
       s.async = false;
-      s.type = 'text/javascript';
+      s.type = "text/javascript";
       s.onload = () => {
         resolve();
       };
-      document.getElementsByTagName('head')[0].appendChild(s);
+      document.getElementsByTagName("head")[0].appendChild(s);
     });
   }
 
   handleClickButton() {
-    console.log(this.getPaymentRequestData());
     this.paymentsClient
       .loadPaymentData(this.getPaymentRequestData())
       .then(this.props.onPaymentSuccess)
@@ -171,11 +177,11 @@ export default class GooglePay extends Component<GooglePayProps> {
 
   createButton(response: ReadyToPayResponse) {
     if (response.result) {
-      const { buttonColor = 'default', buttonSizeMode = 'static' } = this.props;
+      const { buttonColor = "default", buttonSizeMode = "static" } = this.props;
       const button = this.paymentsClient.createButton({
         buttonColor,
         buttonSizeMode,
-        onClick: this.handleClickButton
+        onClick: this.handleClickButton,
       });
       this.container.current?.appendChild(button);
     }
@@ -186,32 +192,33 @@ export default class GooglePay extends Component<GooglePayProps> {
       allowedPaymentMethods: [this.config.cardPaymentMethod],
       merchantInfo: {
         merchantName: this.props.params?.merchantName,
-        merchantId: this.props.params?.merchantId ?? 'TEST merchantId'
+        merchantId: this.props.params?.merchantId ?? "TEST merchantId",
       },
       transactionInfo: {
-        totalPriceStatus: 'FINAL',
+        totalPriceStatus: "FINAL",
         totalPrice: this.props.amount,
-        countryCode: this.props.params?.countryCode ?? 'RU',
-        currencyCode: this.props.params?.currencyCode ?? 'RUB'
+        countryCode: this.props.params?.countryCode ?? "RU",
+        currencyCode: this.props.params?.currencyCode ?? "RUB",
       },
-      ...this.config.baseRequest
+      ...this.config.baseRequest,
     };
   }
 
   getBaseCardPaymentMethod(): BaseCardPaymentMethod {
     return {
-      type: 'CARD',
+      type: "CARD",
       parameters: {
-        allowedAuthMethods: this.props.params?.authMethods ?? defaultCardAuthMethods,
-        allowedCardNetworks: this.props.params?.networks ?? defaultCardNetworks
-      }
+        allowedAuthMethods:
+          this.props.params?.authMethods ?? defaultCardAuthMethods,
+        allowedCardNetworks: this.props.params?.networks ?? defaultCardNetworks,
+      },
     };
   }
 
   getReadyToPayRequest(): ReadyToPayRequest {
     return {
       allowedPaymentMethods: [this.getBaseCardPaymentMethod()],
-      ...this.config.baseRequest
+      ...this.config.baseRequest,
     };
   }
 
